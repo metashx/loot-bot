@@ -1,16 +1,41 @@
 import discord
+from discord import activity
+from discord.ext import tasks
 from dotenv import load_dotenv
 import os
 import re
 import json
+import requests
 
 load_dotenv()
 SECRET = os.getenv('DISCORD_TOKEN')
-OPENSEA = "https://opensea.io/assets/0xff9c1b15b16263c61d017ee9f65c50e4ae0113d7/"
+CONTRACT = "0xff9c1b15b16263c61d017ee9f65c50e4ae0113d7"
+OPENSEA_URL = f"https://opensea.io/assets/{CONTRACT}"
+OPENSEA_API = f"https://api.opensea.io/api/v1/asset/{CONTRACT}"
 
 lootIdPattern = re.compile("^#\d{1,4}$")
 
 client = discord.Client()
+
+@tasks.loop(minutes=10)
+async def checkFloor():
+    try:
+        # Can't get floor via contract request so we check dummy asset
+        response = requests.get(f'{OPENSEA_API}/69')
+        
+        # Retrieve from response https://docs.opensea.io/reference/retrieving-a-single-asset
+        price = response.json()
+        price = price['collection']['stats']['floor_price']
+        price = str(price)
+
+        floorActivity = discord.Activity(name=f"Floor Ξ {price}", type=3)
+        await client.change_presence(activity=floorActivity)
+    except Exception as e:
+        print(repr(e))
+
+@checkFloor.before_loop
+async def before_checkFloor():
+    await client.wait_until_ready()
 
 @client.event
 async def on_message(message):
@@ -34,7 +59,7 @@ async def on_message(message):
         
         msg = discord.Embed(
             title = f'**Bag #{lootId}**', 
-            url=f'{OPENSEA}{lootId}'
+            url=f'{OPENSEA_URL}/{lootId}'
         )
         msg.add_field(
             name='—',
@@ -51,4 +76,5 @@ with open("loot.json", "r") as fLoot:
 with open("rare.json", "r") as fRare:
     rare = json.load(fRare)
 
+checkFloor.start()
 client.run(SECRET)
