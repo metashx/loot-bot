@@ -28,11 +28,12 @@ async def on_message(message):
             title = f'**Bag #{lootId}**', 
             description = f'Rarest {rareRank}, Score {rareScore}'
         )
-        
-        for k, v in bag.items():
-            msg.add_field(name=f"{k}", value=f"{v}")
-            msg.add_field(name='\u200B', value='\u200B', inline=True)
-            msg.add_field(name='\u200B', value='\u200B', inline=True)
+
+        msg.add_field(
+            name='-',
+            value=('\n').join(list(bag.values())),
+            inline=True
+        )
 
         await message.channel.send(embed=msg)
         
