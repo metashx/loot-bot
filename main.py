@@ -6,6 +6,8 @@ import json
 
 load_dotenv()
 SECRET = os.getenv('DISCORD_TOKEN')
+OPENSEA = "https://opensea.io/assets/0xff9c1b15b16263c61d017ee9f65c50e4ae0113d7/"
+
 lootIdPattern = re.compile("^#\d{1,4}$")
 
 client = discord.Client()
@@ -30,9 +32,12 @@ async def on_message(message):
         rareId = list(filter(lambda l: l['lootId'] == lootId, rare))[0]
         rareRank = rareId['rarest']
         
-        msg = discord.Embed(title = f'**Bag #{lootId}**')
+        msg = discord.Embed(
+            title = f'**Bag #{lootId}**', 
+            url=f'{OPENSEA}{lootId}'
+        )
         msg.add_field(
-            name='-',
+            name='—',
             value=('\n').join(bagItems),
             inline=True
         )
