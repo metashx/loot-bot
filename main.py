@@ -14,26 +14,24 @@ client = discord.Client()
 async def on_message(message):
     if lootIdPattern.search(message.content):
         lootId = int(message.content[1:])
-        if lootId > 7999:
+        if lootId > 8000:
             return
         
         # Get dict for this bag
         bag = loot[lootId][f'{lootId}']
+
         # Get rarity for this bag
         rareId = list(filter(lambda l: l['lootId'] == lootId, rare))[0]
         rareRank = rareId['rarest']
         rareScore = rareId['score']
         
-        msg = discord.Embed(
-            title = f'**Bag #{lootId}**', 
-            description = f'Rarest {rareRank}, Score {rareScore}'
-        )
-
+        msg = discord.Embed(title = f'**Bag #{lootId}**')
         msg.add_field(
             name='-',
             value=('\n').join(list(bag.values())),
             inline=True
         )
+        msg.set_footer(text=f'Rarity Rank {rareRank}')
 
         await message.channel.send(embed=msg)
         
