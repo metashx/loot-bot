@@ -16,11 +16,30 @@ async def on_message(message):
         lootId = int(message.content[1:])
         if lootId > 7999:
             return
-        lootItems = loot[lootId]
-        lootItems = json.dumps(lootItems, indent=4)
-        await message.channel.send(lootItems)
         
-with open("loot.json", "r") as f:
-    loot = json.load(f)
+        # Get dict for this bag
+        bag = loot[lootId][f'{lootId}']
+        # Get rarity for this bag
+        rareId = list(filter(lambda l: l['lootId'] == lootId, rare))[0]
+        rareRank = rareId['rarest']
+        rareScore = rareId['score']
+        
+        msg = discord.Embed(
+            title = f'**Bag #{lootId}**', 
+            description = f'Rarest {rareRank}, Score {rareScore}'
+        )
+        
+        for k, v in bag.items():
+            msg.add_field(name=f"{k}", value=f"{v}")
+            msg.add_field(name='\u200B', value='\u200B', inline=True)
+            msg.add_field(name='\u200B', value='\u200B', inline=True)
+
+        await message.channel.send(embed=msg)
+        
+with open("loot.json", "r") as fLoot:
+    loot = json.load(fLoot)
+
+with open("rare.json", "r") as fRare:
+    rare = json.load(fRare)
 
 client.run(SECRET)
