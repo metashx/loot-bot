@@ -1,0 +1,3 @@
+[submodule "lib/dhof-loot"]
+	path = lib/dhof-loot
+	url = git@github.com:Anish-Agnihotri/dhof-loot.git
